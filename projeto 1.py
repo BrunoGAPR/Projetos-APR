@@ -1,8 +1,16 @@
+# ----------------------------------------------------------------------------------------
+# IMPORTAÇÕES
+# ----------------------------------------------------------------------------------------
+
 import json
 import os
 from datetime import datetime
 
-# Função para carregar dados de um arquivo JSON
+# ----------------------------------------------------------------------------------------
+# FUNÇÕES AUXILIARES - JSON
+# ----------------------------------------------------------------------------------------
+
+# Função para carregar os dados de um arquivo JSON
 def carregar_dados(nome_arquivo):
     if os.path.exists(nome_arquivo):
         with open(nome_arquivo, 'r') as f:
@@ -14,11 +22,26 @@ def salvar_dados(dados, nome_arquivo):
     with open(nome_arquivo, 'w') as f:
         json.dump(dados, f, indent=4)
 
+# ----------------------------------------------------------------------------------------
+# FUNÇÕES AUXILIARES
+# ----------------------------------------------------------------------------------------
+
+# Função que requisita dados de um conserto e retorna a chave primária
+def entrada_chave_conserto():
+    cpf = input("CPF do mecânico: ")
+    placa = input("Placa do veículo: ")
+    data_entrada = input("Data de Entrada (dd/mm/aaaa): ")
+    return (cpf, placa, data_entrada)
+
 # Função para calcular a idade a partir da data de nascimento
 def calcular_idade(data_nascimento):
     data_nascimento = datetime.strptime(data_nascimento, '%d/%m/%Y')
     hoje = datetime.today()
     return hoje.year - data_nascimento.year - ((hoje.month, hoje.day) < (data_nascimento.month, data_nascimento.day))
+
+# ----------------------------------------------------------------------------------------
+# MENUS & SUB-MENUS
+# ----------------------------------------------------------------------------------------
 
 # Função principal
 def main():
@@ -52,9 +75,12 @@ def main():
         else:
             print("Opção inválida. Tente novamente.")
 
+# ---------------------
 # Submenu de Mecânicos
+# ---------------------
+
 def submenu_mecanicos(mecanicos, nome_arquivo):
-    info = {
+    info_mecanicos = {
         "nome": "Nome",
         "data_nascimento": "Data de Nascimento",
         "sexo": "Sexo",
@@ -74,11 +100,11 @@ def submenu_mecanicos(mecanicos, nome_arquivo):
         opcao = input("Escolha uma opção: ")
 
         if opcao == '1':
-            if not listar_todos(mecanicos, info):
+            if not listar_todos(mecanicos, info_mecanicos):
                 print("\nDados não encontrados!")
         elif opcao == '2':
             cpf = input("CPF: ")
-            if not listar_um(mecanicos, cpf, info):
+            if not listar_um(mecanicos, cpf, info_mecanicos):
                 print("\nRegistro não encontrado.")
         elif opcao == '3':
             cpf = input("CPF: ")
@@ -104,7 +130,10 @@ def submenu_mecanicos(mecanicos, nome_arquivo):
         else:
             print("Opção inválida. Tente novamente.")
 
+# --------------------
 # Submenu de Veículos
+# --------------------
+
 def submenu_veiculos(veiculos, nome_arquivo):
     continuar_menu = True
     while continuar_menu:
@@ -135,13 +164,10 @@ def submenu_veiculos(veiculos, nome_arquivo):
         else:
             print("Opção inválida. Tente novamente.")
 
-def entrada_chave_conserto():
-    cpf = input("CPF do mecânico: ")
-    placa = input("Placa do veículo: ")
-    data_entrada = input("Data de Entrada (dd/mm/aaaa): ")
-    return (cpf, placa, data_entrada)
-
+# ---------------------
 # Submenu de Consertos
+# ---------------------
+
 def submenu_consertos(consertos, mecanicos, veiculos, nome_arquivo):
     continuar_menu = True
     while continuar_menu:
@@ -174,7 +200,10 @@ def submenu_consertos(consertos, mecanicos, veiculos, nome_arquivo):
     else:
         print("Opção inválida. Tente novamente.")
 
+# ----------------------
 # Submenu de Relatórios
+# ----------------------
+
 def submenu_relatorios(mecanicos, veiculos, consertos):
     continuar_menu = True
     while continuar_menu:
@@ -196,7 +225,11 @@ def submenu_relatorios(mecanicos, veiculos, consertos):
     else:
         print("Opção inválida. Tente novamente.")
 
-# Funções auxiliares para Mecânicos
+# ----------------------------------------------------------------------------------------
+# FUNÇÕES - MECÂNICOS
+# ----------------------------------------------------------------------------------------
+
+# Função que retorna um dicionário contendo as informações de um mecânico
 def gerar_mecanico():
     nome = input("Nome: ")
     data_nascimento = input("Data de Nascimento (dd/mm/aaaa): ")
@@ -214,11 +247,13 @@ def gerar_mecanico():
         "telefones": telefones
     }
 
+# Função que adiciona um mecânico
 def adicionar_mecanico(mecanicos, cpf):
     mecanico = gerar_mecanico()
     mecanicos[cpf] = mecanico
     return True
 
+# Função que altera um mecânico
 def alterar_mecanico(mecanicos):
     cpf = input("Digite o CPF do mecânico que deseja alterar: ")
     if cpf not in mecanicos:
@@ -226,6 +261,7 @@ def alterar_mecanico(mecanicos):
     else:
         return adicionar_mecanico(mecanicos, cpf)
 
+# Função que exclui um mecânico
 def excluir_mecanico(mecanicos):
     cpf = input("CPF do mecânico a ser removido: ")
     if cpf in mecanicos:
@@ -238,7 +274,11 @@ def excluir_mecanico(mecanicos):
     else:
         return False
 
-# Funções auxiliares para Veículos
+# ----------------------------------------------------------------------------------------
+# FUNÇÕES - VEÍCULOS
+# ----------------------------------------------------------------------------------------
+
+# Função que adiciona um veículo
 def adicionar_veiculo(veiculos):
     placa = input("Placa: ")
     if placa in veiculos:
@@ -264,6 +304,7 @@ def adicionar_veiculo(veiculos):
     }
     print("Veículo adicionado com sucesso.")
 
+# Função que altera um veículo
 def alterar_veiculo(veiculos):
     placa = input("Placa do veículo a ser alterado: ")
     if placa not in veiculos:
@@ -289,6 +330,7 @@ def alterar_veiculo(veiculos):
     }
     print("Veículo alterado com sucesso.")
 
+# Função que exclui um veículo
 def excluir_veiculo(veiculos):
     placa = input("Placa do veículo a ser removido: ")
     if placa in veiculos:
@@ -301,7 +343,11 @@ def excluir_veiculo(veiculos):
     else:
         print("Veículo não encontrado.")
 
-# Funções auxiliares para Consertos
+# ----------------------------------------------------------------------------------------
+# FUNÇÕES - CONSERTOS
+# ----------------------------------------------------------------------------------------
+
+# Função que adiciona um conserto
 def adicionar_conserto(consertos, mecanicos, veiculos):
     cpf = input("CPF do mecânico: ")
     if cpf not in mecanicos:
@@ -333,6 +379,7 @@ def adicionar_conserto(consertos, mecanicos, veiculos):
     }
     print("Conserto adicionado com sucesso.")
 
+# Função que altera um conserto
 def alterar_conserto(consertos, chave_conserto):
     if chave_conserto not in consertos:
         print("Conserto não encontrado.")
@@ -352,6 +399,7 @@ def alterar_conserto(consertos, chave_conserto):
     }
     print("Conserto alterado com sucesso.")
 
+# Função que exclui um conserto
 def excluir_conserto(consertos, chave_conserto):
     if chave_conserto in consertos:
         confirmar = input(f"Você tem certeza que deseja remover o conserto do veículo {consertos[chave_conserto]['placa']} realizado por {consertos[chave_conserto]['cpf']}? (s/n): ")
@@ -363,7 +411,11 @@ def excluir_conserto(consertos, chave_conserto):
     else:
         print("Conserto não encontrado.")
 
-# Funções de listagem
+# ----------------------------------------------------------------------------------------
+# FUNÇÕES - LISTAGEM
+# ----------------------------------------------------------------------------------------
+
+# Lista todas as informações de um conjunto de dados
 def listar_todos(dados, info):
     if dados:
         for chave in dados:
@@ -373,6 +425,7 @@ def listar_todos(dados, info):
     else:
         return False
 
+# Dado uma chave, lista as informações específicas em conjunto de dados.
 def listar_um(dados, chave, info):
     if chave in dados:
         print("-" * 25)
@@ -386,7 +439,10 @@ def listar_um(dados, chave, info):
     else:
         return False
 
-# Funções de relatórios
+# ----------------------------------------------------------------------------------------
+# FUNÇÕES - RELATÓRIOS
+# ----------------------------------------------------------------------------------------
+
 def relatorio_mecanicos_por_idade(mecanicos):
     idade_limite = int(input("Informe a idade mínima: "))
     for cpf, mecanico in mecanicos.items():
@@ -416,5 +472,6 @@ def relatorio_consertos_por_data(mecanicos, veiculos, consertos):
             print(f"Veículo: {conserto['placa']}, {veiculo['marca']}, {veiculo['modelo']}, {veiculo['ano']}")
             print(f"Conserto: {conserto}")
 
+# Execução do programa
 if __name__ == '__main__':
     main()
