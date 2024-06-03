@@ -13,13 +13,13 @@ from datetime import datetime
 # Função para carregar os dados de um arquivo JSON
 def carregar_dados(nome_arquivo):
     if os.path.exists(nome_arquivo):
-        with open(nome_arquivo, 'r') as f:
+        with open(nome_arquivo, 'r', -1, 'UTF-8') as f:
             return json.load(f)
     return {}
 
 # Função para salvar dados em um arquivo JSON
 def salvar_dados(dados, nome_arquivo):
-    with open(nome_arquivo, 'w') as f:
+    with open(nome_arquivo, 'w', -1, 'UTF-8') as f:
         json.dump(dados, f, indent=4)
 
 # ----------------------------------------------------------------------------------------
@@ -53,7 +53,9 @@ def main():
     veiculos = carregar_dados(arquivo_veiculos)
     consertos = carregar_dados(arquivo_consertos)
 
-    while True:
+    menu_opcao = True
+
+    while menu_opcao:
         print("\nMenu de Opções:")
         print("1. Submenu de Mecânicos")
         print("2. Submenu de Veículos")
@@ -71,7 +73,8 @@ def main():
         elif opcao == '4':
             submenu_relatorios(mecanicos, veiculos, consertos)
         elif opcao == '5':
-            return
+            print("\nFim do programa...")
+            menu_opcao = False
         else:
             print("Opção inválida. Tente novamente.")
 
@@ -80,14 +83,6 @@ def main():
 # ---------------------
 
 def submenu_mecanicos(mecanicos, nome_arquivo):
-    info_mecanicos = {
-        "nome": "Nome",
-        "data_nascimento": "Data de Nascimento",
-        "sexo": "Sexo",
-        "salario": "Salário",
-        "emails": "E-mails",
-        "telefones": "Telefones"
-    }
     continuar_menu = True
     while continuar_menu:
         print("\nSubmenu de Mecânicos:")
@@ -100,11 +95,11 @@ def submenu_mecanicos(mecanicos, nome_arquivo):
         opcao = input("Escolha uma opção: ")
 
         if opcao == '1':
-            if not listar_todos(mecanicos, info_mecanicos):
+            if not listar_todos(mecanicos):
                 print("\nDados não encontrados!")
         elif opcao == '2':
             cpf = input("CPF: ")
-            if not listar_um(mecanicos, cpf, info_mecanicos):
+            if not listar_um(mecanicos, cpf):
                 print("\nRegistro não encontrado.")
         elif opcao == '3':
             cpf = input("CPF: ")
@@ -147,18 +142,31 @@ def submenu_veiculos(veiculos, nome_arquivo):
         opcao = input("Escolha uma opção: ")
 
         if opcao == '1':
-            listar_todos(veiculos)
+            if not listar_todos(veiculos):
+                print("\nDados não encontrados!")
         elif opcao == '2':
-            listar_um(veiculos)
+            placa = input("Placa: ")
+            if not listar_um(veiculos, placa):
+                print("\nRegistro não encontrado!")
         elif opcao == '3':
-            adicionar_veiculo(veiculos)
-            salvar_dados(veiculos, nome_arquivo)
+            placa = input("Placa: ")
+            if placa in veiculos:
+                print("\nVeículo já registrado!")
+            elif adicionar_veiculo(veiculos, placa):
+                print("\nVeículo registrado com sucesso!")
+                salvar_dados(veiculos, nome_arquivo)
         elif opcao == '4':
-            alterar_veiculo(veiculos)
-            salvar_dados(veiculos, nome_arquivo)
+            if not alterar_veiculo(veiculos):
+                print("\nPlaca não encontrada!")
+            else:
+                print("\nVeículo alterado com sucesso!")
+                salvar_dados(veiculos, nome_arquivo)
         elif opcao == '5':
-            excluir_veiculo(veiculos)
-            salvar_dados(veiculos, nome_arquivo)
+            if not excluir_veiculo(veiculos):
+                print("\nPlaca não encontrada!")
+            else:
+                print("\nVeículo excluído com sucesso!")
+                salvar_dados(veiculos, nome_arquivo)
         elif opcao == '6':
             continuar_menu = False
         else:
@@ -239,12 +247,12 @@ def gerar_mecanico():
     telefones = input("Telefones (separados por vírgula): ").split(',')
 
     return {
-        "nome": nome,
-        "data_nascimento": data_nascimento,
-        "sexo": sexo,
-        "salario": salario,
-        "emails": emails,
-        "telefones": telefones
+        "Nome": nome,
+        "Data de Nascimento": data_nascimento,
+        "Sexo": sexo,
+        "Salário": salario,
+        "E-mails": emails,
+        "Telefones": telefones
     }
 
 # Função que adiciona um mecânico
@@ -265,7 +273,7 @@ def alterar_mecanico(mecanicos):
 def excluir_mecanico(mecanicos):
     cpf = input("CPF do mecânico a ser removido: ")
     if cpf in mecanicos:
-        confirmar = input(f"Você tem certeza que deseja remover o mecânico {mecanicos[cpf]['nome']}? (s/n): ")
+        confirmar = input(f"Você tem certeza que deseja remover o mecânico {mecanicos[cpf]['Nome']}? (s/n): ")
         if confirmar.lower() == 's':
             del mecanicos[cpf]
             return True
@@ -278,13 +286,7 @@ def excluir_mecanico(mecanicos):
 # FUNÇÕES - VEÍCULOS
 # ----------------------------------------------------------------------------------------
 
-# Função que adiciona um veículo
-def adicionar_veiculo(veiculos):
-    placa = input("Placa: ")
-    if placa in veiculos:
-        print("Veículo já cadastrado.")
-        return
-
+def gerar_veiculo():
     tipo = input("Tipo: ")
     marca = input("Marca: ")
     modelo = input("Modelo: ")
@@ -293,7 +295,7 @@ def adicionar_veiculo(veiculos):
     combustivel = input("Combustível: ")
     cor = input("Cor: ")
 
-    veiculos[placa] = {
+    return {
         "Tipo": tipo,
         "Marca": marca,
         "Modelo": modelo,
@@ -302,46 +304,33 @@ def adicionar_veiculo(veiculos):
         "Combustível": combustivel,
         "Cor": cor
     }
-    print("Veículo adicionado com sucesso.")
+
+# Função que adiciona um veículo
+def adicionar_veiculo(veiculos, placa):
+    veiculo = gerar_veiculo()
+    veiculos[placa] = veiculo
+    return True
 
 # Função que altera um veículo
 def alterar_veiculo(veiculos):
     placa = input("Placa do veículo a ser alterado: ")
     if placa not in veiculos:
-        print("Veículo não encontrado.")
-        return
-
-    tipo = input("Tipo: ")
-    marca = input("Marca: ")
-    modelo = input("Modelo: ")
-    ano = int(input("Ano: "))
-    portas = int(input("Portas: "))
-    combustivel = input("Combustível: ")
-    cor = input("Cor: ")
-
-    veiculos[placa] = {
-        "tipo": tipo,
-        "marca": marca,
-        "modelo": modelo,
-        "ano": ano,
-        "portas": portas,
-        "combustível": combustivel,
-        "cor": cor
-    }
-    print("Veículo alterado com sucesso.")
+        return False
+    else:
+        return adicionar_veiculo(veiculos, placa)
 
 # Função que exclui um veículo
 def excluir_veiculo(veiculos):
     placa = input("Placa do veículo a ser removido: ")
     if placa in veiculos:
-        confirmar = input(f"Você tem certeza que deseja remover o veículo {veiculos[placa]['marca']} - {veiculos[placa]['modelo']}? (s/n): ")
+        confirmar = input(f"Você tem certeza que deseja remover o veículo {veiculos[placa]['Marca']} - {veiculos[placa]['Modelo']}? (s/n): ")
         if confirmar.lower() == 's':
             del veiculos[placa]
-            print("Veículo removido com sucesso.")
+            return True
         else:
             print("Operação cancelada.")
     else:
-        print("Veículo não encontrado.")
+        return False
 
 # ----------------------------------------------------------------------------------------
 # FUNÇÕES - CONSERTOS
@@ -416,24 +405,23 @@ def excluir_conserto(consertos, chave_conserto):
 # ----------------------------------------------------------------------------------------
 
 # Lista todas as informações de um conjunto de dados
-def listar_todos(dados, info):
+def listar_todos(dados):
     if dados:
         for chave in dados:
             print()
-            listar_um(dados, chave, info)
+            listar_um(dados, chave)
         return True
     else:
         return False
 
 # Dado uma chave, lista as informações específicas em conjunto de dados.
-def listar_um(dados, chave, info):
+def listar_um(dados, chave):
     if chave in dados:
-        print("-" * 25)
         for item in dados[chave]:
             if type(dados[chave][item]) == list:
-                print(f"{info[item]}: {" - ".join(dados[chave][item])}")
+                print(f"{item}: {" - ".join(dados[chave][item])}")
             else:
-                print(f"{info[item]}: {dados[chave][item]}")
+                print(f"{item}: {dados[chave][item]}")
         print("-" * 25)
         return True
     else:

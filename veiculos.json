@@ -1,0 +1,29 @@
+{
+    "A": {
+        "Tipo": "Sedan",
+        "Marca": "Chevrolet",
+        "Modelo": "Astra",
+        "Ano": 2008,
+        "Portas": 4,
+        "Combust\u00edvel": "Gasolina",
+        "Cor": "Preto"
+    },
+    "B": {
+        "Tipo": "Hatch",
+        "Marca": "Wolkswagen",
+        "Modelo": "Fox",
+        "Ano": 2011,
+        "Portas": 4,
+        "Combust\u00edvel": "Flex",
+        "Cor": "Prata"
+    },
+    "D": {
+        "Tipo": "Hatch",
+        "Marca": "Wolkswagen",
+        "Modelo": "Fusca",
+        "Ano": 1967,
+        "Portas": 2,
+        "Combust\u00edvel": "Gasolina",
+        "Cor": "Azul"
+    }
+}
