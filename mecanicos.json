@@ -1,0 +1,27 @@
+{
+    "1": {
+        "nome": "Bruno",
+        "data_nascimento": "12/12/2000",
+        "sexo": "M",
+        "salario": 1200.0,
+        "emails": [
+            "bruno@gmail.com"
+        ],
+        "telefones": [
+            "9999",
+            "1111"
+        ]
+    },
+    "2": {
+        "nome": "Gustavo",
+        "data_nascimento": "06/09/2005",
+        "sexo": "M",
+        "salario": 1200.0,
+        "emails": [
+            "gustavo@email.com"
+        ],
+        "telefones": [
+            "997006278"
+        ]
+    }
+}
