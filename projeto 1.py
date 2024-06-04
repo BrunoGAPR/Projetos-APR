@@ -10,17 +10,42 @@ from datetime import datetime
 # FUNÇÕES AUXILIARES - JSON
 # ----------------------------------------------------------------------------------------
 
+# Função que recebe os dados de conserto do JSON e transforma suas chaves de "string" -> "tupla"
+def carregar_chaves_conserto(dados):
+    novos_dados = dict()
+    for chave in dados:
+        chave_string = chave.split("_")
+        nova_chave = (chave_string[0], chave_string[1], chave_string[2])
+        novos_dados[nova_chave] = dados[chave]
+    return novos_dados
+
+# Função que recebe os dados de conserto em memória e transforma suas chaves de "tupla" -> "string"
+def salvar_chaves_conserto(dados):
+    novos_dados = dict()
+    for chave in dados:
+        nova_chave = f"{chave[0]}_{chave[1]}_{chave[2]}"
+        novos_dados[nova_chave] = dados[chave]
+    return novos_dados
+
 # Função para carregar os dados de um arquivo JSON
 def carregar_dados(nome_arquivo):
     if os.path.exists(nome_arquivo):
         with open(nome_arquivo, 'r', -1, 'UTF-8') as f:
-            return json.load(f)
-    return {}
+            if nome_arquivo == "consertos.json":
+                dados = json.load(f)
+                return carregar_chaves_conserto(dados)
+            else:
+                return json.load(f)
+    else:
+        return {}
 
 # Função para salvar dados em um arquivo JSON
 def salvar_dados(dados, nome_arquivo):
     with open(nome_arquivo, 'w', -1, 'UTF-8') as f:
-        json.dump(dados, f, indent=4)
+        if nome_arquivo == "consertos.json":
+            json.dump(salvar_chaves_conserto(dados), f, indent=4)
+        else:
+            json.dump(dados, f, indent=4)
 
 # ----------------------------------------------------------------------------------------
 # FUNÇÕES AUXILIARES
@@ -30,6 +55,7 @@ def salvar_dados(dados, nome_arquivo):
 def entrada_chave_conserto():
     cpf = input("CPF do mecânico: ")
     placa = input("Placa do veículo: ")
+    # TODO - Check if the date is after todays date
     data_entrada = input("Data de Entrada (dd/mm/aaaa): ")
     return (cpf, placa, data_entrada)
 
@@ -95,11 +121,11 @@ def submenu_mecanicos(mecanicos, nome_arquivo):
         opcao = input("Escolha uma opção: ")
 
         if opcao == '1':
-            if not listar_todos(mecanicos):
+            if not listar_todos(mecanicos, 'CPF'):
                 print("\nDados não encontrados!")
         elif opcao == '2':
             cpf = input("CPF: ")
-            if not listar_um(mecanicos, cpf):
+            if not listar_um(mecanicos, cpf, 'CPF'):
                 print("\nRegistro não encontrado.")
         elif opcao == '3':
             cpf = input("CPF: ")
@@ -142,11 +168,11 @@ def submenu_veiculos(veiculos, nome_arquivo):
         opcao = input("Escolha uma opção: ")
 
         if opcao == '1':
-            if not listar_todos(veiculos):
+            if not listar_todos(veiculos, 'Placa'):
                 print("\nDados não encontrados!")
         elif opcao == '2':
             placa = input("Placa: ")
-            if not listar_um(veiculos, placa):
+            if not listar_um(veiculos, placa, 'Placa'):
                 print("\nRegistro não encontrado!")
         elif opcao == '3':
             placa = input("Placa: ")
@@ -188,25 +214,37 @@ def submenu_consertos(consertos, mecanicos, veiculos, nome_arquivo):
         print("6. Voltar")
         opcao = input("Escolha uma opção: ")
 
-    if opcao == '1':
-        listar_todos(consertos)
-    elif opcao == '2':
-        listar_um(consertos)
-    elif opcao == '3':
-        adicionar_conserto(consertos, mecanicos, veiculos)
-        salvar_dados(consertos, nome_arquivo)
-    elif opcao == '4':
-        chave_conserto = entrada_chave_conserto()
-        alterar_conserto(consertos, chave_conserto)
-        salvar_dados(consertos, nome_arquivo)
-    elif opcao == '5':
-        chave_conserto = entrada_chave_conserto()
-        excluir_conserto(consertos)
-        salvar_dados(consertos, nome_arquivo)
-    elif opcao == '6':
-        continuar_menu = False
-    else:
-        print("Opção inválida. Tente novamente.")
+        if opcao == '1':
+            if not listar_todos(consertos, 'Código'):
+                print("\nDados não encontrados!")
+        elif opcao == '2':
+            chave_conserto = entrada_chave_conserto()
+            if not listar_um(veiculos, chave_conserto, 'Código'):
+                print("\nRegistro não encontrado!")
+        elif opcao == '3':
+            if not adicionar_conserto(consertos, mecanicos, veiculos):
+                print("\nNão foi possível adicionar o conserto!")
+            else:
+                print("\nConserto registrado com sucesso!")
+                salvar_dados(consertos, nome_arquivo)
+        elif opcao == '4':
+            chave_conserto = entrada_chave_conserto()
+            if not alterar_conserto(consertos, chave_conserto):
+                print("\nConserto não encontrado.")
+            else:
+                print("\nConserto alterado com sucesso!")
+                salvar_dados(consertos, nome_arquivo)
+        elif opcao == '5':
+            chave_conserto = entrada_chave_conserto()
+            if not excluir_conserto(consertos, chave_conserto):
+                print("\nConserto não encontrado!")
+            else:
+                print("\nConserto excluído com sucesso!")
+                salvar_dados(consertos, nome_arquivo)
+        elif opcao == '6':
+            continuar_menu = False
+        else:
+            print("Opção inválida. Tente novamente.")
 
 # ----------------------
 # Submenu de Relatórios
@@ -336,87 +374,88 @@ def excluir_veiculo(veiculos):
 # FUNÇÕES - CONSERTOS
 # ----------------------------------------------------------------------------------------
 
-# Função que adiciona um conserto
-def adicionar_conserto(consertos, mecanicos, veiculos):
-    cpf = input("CPF do mecânico: ")
-    if cpf not in mecanicos:
-        print("Mecânico não encontrado.")
-        return
-
-    placa = input("Placa do veículo: ")
-    if placa not in veiculos:
-        print("Veículo não encontrado.")
-        return
-
-    data_entrada = input("Data de Entrada (dd/mm/aaaa): ")
+def gerar_conserto():
     data_saida = input("Data de Saída (dd/mm/aaaa): ")
     problemas = input("Descrição dos Problemas: ")
     valor_conserto = float(input("Valor do Conserto: "))
+    
+    return {
+        "Data de Saída": data_saida,
+        "Descrição dos Problemas": problemas,
+        "Valor de Conserto": valor_conserto
+    }
 
-    chave_conserto = (cpf, placa, data_entrada)
-    if chave_conserto in consertos:
-        print("Conserto já cadastrado.")
+# Função que adiciona um conserto
+def adicionar_conserto(consertos, mecanicos, veiculos):
+    chave = entrada_chave_conserto()
+    if chave[0] not in mecanicos: # CPF
+        print("Mecânico não encontrado.")
         return False
 
-    consertos[chave_conserto] = {
-        "cpf": cpf,
-        "placa": placa,
-        "data_entrada": data_entrada,
-        "data_saida": data_saida,
-        "desc_problemas": problemas,
-        "valor_conserto": valor_conserto
+    if chave[1] not in veiculos: # Placa
+        print("Veículo não encontrado.")
+        return False
+    
+    conserto = gerar_conserto()
+
+    if chave in consertos:
+        return False
+
+    consertos[chave] = { 
+        "CPF": chave[0],
+        "Placa": chave[1],
+        "Data de Entrada": chave[2],
+        **conserto 
     }
-    print("Conserto adicionado com sucesso.")
+    
+    return True
 
 # Função que altera um conserto
 def alterar_conserto(consertos, chave_conserto):
     if chave_conserto not in consertos:
-        print("Conserto não encontrado.")
-        return
+        return False
 
-    data_saida = input("Data de Saída (dd/mm/aaaa): ")
-    problemas = input("Descrição dos Problemas: ")
-    valor_conserto = float(input("Valor do Conserto: "))
+    conserto = gerar_conserto()
 
     consertos[chave_conserto] = {
-        "cpf": chave_conserto[0],
-        "placa": chave_conserto[1],
-        "data_entrada": chave_conserto[2],
-        "data_saida": data_saida,
-        "desc_problemas": problemas,
-        "valor_conserto": valor_conserto
+        "CPF": chave_conserto[0],
+        "Placa": chave_conserto[1],
+        "Data de Entrada": chave_conserto[2],
+        **conserto
     }
-    print("Conserto alterado com sucesso.")
+    
+    return True
 
 # Função que exclui um conserto
 def excluir_conserto(consertos, chave_conserto):
     if chave_conserto in consertos:
-        confirmar = input(f"Você tem certeza que deseja remover o conserto do veículo {consertos[chave_conserto]['placa']} realizado por {consertos[chave_conserto]['cpf']}? (s/n): ")
+        confirmar = input(f"Você tem certeza que deseja remover o conserto do veículo {consertos[chave_conserto]['Placa']} realizado por {consertos[chave_conserto]['CPF']}? (s/n): ")
         if confirmar.lower() == 's':
             del consertos[chave_conserto]
-            print("Conserto removido com sucesso.")
+            return True
         else:
             print("Operação cancelada.")
     else:
-        print("Conserto não encontrado.")
+        return False
 
 # ----------------------------------------------------------------------------------------
 # FUNÇÕES - LISTAGEM
 # ----------------------------------------------------------------------------------------
 
 # Lista todas as informações de um conjunto de dados
-def listar_todos(dados):
+def listar_todos(dados, nome_chave='Código'):
     if dados:
         for chave in dados:
-            print()
-            listar_um(dados, chave)
+            listar_um(dados, chave, nome_chave)
         return True
     else:
         return False
 
 # Dado uma chave, lista as informações específicas em conjunto de dados.
-def listar_um(dados, chave):
+def listar_um(dados, chave, nome_chave='Código'):
     if chave in dados:
+        print()
+        print(f"{nome_chave}: {" - ".join(chave)}")
         for item in dados[chave]:
             if type(dados[chave][item]) == list:
                 print(f"{item}: {" - ".join(dados[chave][item])}")
