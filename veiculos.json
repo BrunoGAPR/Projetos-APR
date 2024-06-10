@@ -1,29 +1,20 @@
 {
-    "A": {
-        "Tipo": "Sedan",
+    "ABC": {
+        "Tipo": "Hatch",
         "Marca": "Chevrolet",
         "Modelo": "Astra",
-        "Ano": 2008,
+        "Ano": 2009,
         "Portas": 4,
-        "Combust\u00edvel": "Gasolina",
-        "Cor": "Preto"
+        "Combust\u00edvel": "Gasosa",
+        "Cor": "PReto"
     },
-    "B": {
-        "Tipo": "Hatch",
-        "Marca": "Wolkswagen",
-        "Modelo": "Fox",
-        "Ano": 2011,
-        "Portas": 4,
-        "Combust\u00edvel": "Flex",
-        "Cor": "Prata"
-    },
-    "D": {
+    "DEF": {
         "Tipo": "Hatch",
         "Marca": "Wolkswagen",
         "Modelo": "Fusca",
-        "Ano": 1967,
+        "Ano": 1969,
         "Portas": 2,
-        "Combust\u00edvel": "Gasolina",
-        "Cor": "Azul"
+        "Combust\u00edvel": "Gasosa",
+        "Cor": "Azul cor de c\u00e9sio-137"
     }
 }
