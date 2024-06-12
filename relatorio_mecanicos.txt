@@ -1,0 +1,15 @@
+-------------------- Relatório de 'Mecânicos com idade mínima de "16"' --------------------
+Nome: Bruno
+Data de Nascimento: 11/07/2001
+Sexo: Outro
+Salário: 2000.0
+E-mails: todos@todos - b@b.com
+Telefones: 912 - 9123
+---------------------------------------------#
+Nome: Gustavo
+Data de Nascimento: 06/09/2005
+Sexo: M
+Salário: 2350.0
+E-mails: gustavo@gmail.com - trizotti@gmail.com
+Telefones: 991 - 992
+---------------------------------------------#

@@ -1,0 +1,23 @@
+-------------------- Relatório de 'Consertos entre "06/06/2024 - 12/06/2024"' --------------------
+CPF: 1
+Nome: Bruno
+Placa: ABC
+Marca: Chevrolet
+Modelo: Astra
+Ano: 2009
+Data de Entrada: 10/06/2024
+Data de Saída: 11/06/2024
+Descrição dos Problemas: Muito ruim
+Valor de Conserto: 200.0
+---------------------------------------------#
+CPF: 2
+Nome: Gustavo
+Placa: DEF
+Marca: Wolkswagen
+Modelo: Fusca
+Ano: 1969
+Data de Entrada: 11/06/2024
+Data de Saída: 12/06/2024
+Descrição dos Problemas: Muito péssimo
+Valor de Conserto: 300.0
+---------------------------------------------#

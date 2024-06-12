@@ -46,6 +46,21 @@ def salvar_dados(dados, nome_arquivo):
             json.dump(salvar_chaves_conserto(dados), f, indent=4)
         else:
             json.dump(dados, f, indent=4)
+            
+def salvar_dados_relatorios(dados, nome_arquivo, valor):
+    nome_relatorios = { 'relatorio_mecanicos.txt': f'Mecânicos com idade mínima de "{valor}"', 'relatorio_veiculos.txt': f'Veículos da marca "{valor}"', 'relatorio_consertos.txt': f'Consertos entre "{valor}"' }
+    
+    with open(nome_arquivo, 'w', -1, 'UTF-8') as f:
+        titulo = f"Relatório de '{nome_relatorios[nome_arquivo]}'"
+        f.write("-" * 20 + " " + titulo + " " + "-" * 20 + "\n")
+        for chave in dados:
+            for item in dados[chave]:
+                if type(dados[chave][item]) == list:
+                    f.write(f"{item}: {" - ".join(dados[chave][item])}\n")
+                else:
+                    f.write(f"{item}: {dados[chave][item]}\n")
+            f.write("-" * 45 + "#" + "\n")
+        f.close()
 
 # ----------------------------------------------------------------------------------------
 # FUNÇÕES AUXILIARES
@@ -55,7 +70,6 @@ def salvar_dados(dados, nome_arquivo):
 def entrada_chave_conserto():
     cpf = input("CPF do mecânico: ")
     placa = input("Placa do veículo: ")
-    # TODO - Check if the date is after todays date
     data_entrada = input("Data de Entrada (dd/mm/aaaa): ")
     return (cpf, placa, data_entrada)
 
@@ -269,14 +283,29 @@ def submenu_relatorios(mecanicos, veiculos, consertos):
         opcao = input("Escolha uma opção: ")
         if opcao == '1':
             idade_minima = int(input("Idade mínima: "))
-            relatorio_mecanicos_por_idade(mecanicos, idade_minima)
+            resultado, dados = relatorio_mecanicos_por_idade(mecanicos, idade_minima)
+            if not resultado:
+                print(f"\nMecânicos com idade mínima de {idade_minima} anos não encontrados!")
+            else:
+                salvar_dados_relatorios(dados, 'relatorio_mecanicos.txt', idade_minima)
+                print("\nRelatório salvo com sucesso!")   
         elif opcao == '2':
             marca = input("Digite a marca do veículo: ")
-            relatorio_veiculos_por_marca(veiculos, marca)
+            resultado, dados = relatorio_veiculos_por_marca(veiculos, marca)
+            if not resultado:
+                print(f"\nVeículos da marca '{marca}' não encontrados!")
+            else:
+                salvar_dados_relatorios(dados, 'relatorio_veiculos.txt', marca)
+                print("\nRelatório salvo com sucesso!")
         elif opcao == '3':
             data_inicio = input("Data de início (dd/mm/aaaa): ")
             data_fim = input("Data de término (dd/mm/aaaa): ")  
-            relatorio_consertos_por_data(mecanicos, veiculos, consertos, data_inicio, data_fim)
+            resultado, dados = relatorio_consertos_por_data(mecanicos, veiculos, consertos, data_inicio, data_fim)
+            if not resultado:
+                print(f"\nConsertos registrados entre '{data_inicio}' - '{data_fim}' não encontrados!")
+            else:
+                salvar_dados_relatorios(dados, 'relatorio_consertos.txt', data_inicio + ' - ' + data_fim)
+                print("\nRelatório salvo com sucesso!")
         elif opcao == '4':
             continuar_menu = False
         else:
@@ -488,14 +517,14 @@ def relatorio_mecanicos_por_idade(mecanicos, idade_minima):
     for cpf in mecanicos:
         if calcular_idade(mecanicos[cpf]['Data de Nascimento']) > idade_minima:
             mecanicos_idade[cpf] = mecanicos[cpf]
-    return listar_todos(mecanicos_idade, 'CPF')
+    return listar_todos(mecanicos_idade, 'CPF'), mecanicos_idade
 
 def relatorio_veiculos_por_marca(veiculos, marca):
     veiculos_marca = {}
     for placa in veiculos:
         if veiculos[placa]['Marca'].lower() == marca.lower():
             veiculos_marca[placa] = veiculos[placa]
-    return listar_todos(veiculos_marca)
+    return listar_todos(veiculos_marca), veiculos_marca
 
 def relatorio_consertos_por_data(mecanicos, veiculos, consertos, data_inicio, data_fim):
     data_inicio = datetime.strptime(data_inicio, '%d/%m/%Y')
@@ -507,7 +536,7 @@ def relatorio_consertos_por_data(mecanicos, veiculos, consertos, data_inicio, da
             cpf, nome = chave[0], mecanicos[chave[0]]['Nome'],
             placa, marca, modelo, ano = veiculos[chave[1]], veiculos[chave[1]]['Marca'], veiculos[chave[1]]['Modelo'], veiculos[chave[1]]['Ano']
             conserto_data[chave] = { "CPF": cpf, "Nome": nome, "Placa": placa, "Marca": marca, "Modelo": modelo, "Ano": ano, **consertos[chave] }
-    return listar_todos(conserto_data)
+    return listar_todos(conserto_data), conserto_data
             
 
 # Execução do programa
