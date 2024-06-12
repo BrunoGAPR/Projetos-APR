@@ -1,0 +1,20 @@
+{
+    "ABC": {
+        "Tipo": "Hatch",
+        "Marca": "Chevrolet",
+        "Modelo": "Astra",
+        "Ano": 2009,
+        "Portas": 4,
+        "Combust\u00edvel": "Gasosa",
+        "Cor": "PReto"
+    },
+    "DEF": {
+        "Tipo": "Hatch",
+        "Marca": "Wolkswagen",
+        "Modelo": "Fusca",
+        "Ano": 1969,
+        "Portas": 2,
+        "Combust\u00edvel": "Gasosa",
+        "Cor": "Azul cor de c\u00e9sio-137"
+    }
+}

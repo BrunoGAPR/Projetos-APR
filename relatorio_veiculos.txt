@@ -1,0 +1,9 @@
+-------------------- Relatório de 'Veículos da marca "Wolkswagen"' --------------------
+Tipo: Hatch
+Marca: Wolkswagen
+Modelo: Fusca
+Ano: 1969
+Portas: 2
+Combustível: Gasosa
+Cor: Azul cor de césio-137
+---------------------------------------------#

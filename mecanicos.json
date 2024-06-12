@@ -1,0 +1,30 @@
+{
+    "1": {
+        "Nome": "Bruno",
+        "Data de Nascimento": "11/07/2001",
+        "Sexo": "Outro",
+        "Sal\u00e1rio": 2000.0,
+        "E-mails": [
+            "todos@todos",
+            "b@b.com"
+        ],
+        "Telefones": [
+            "912",
+            "9123"
+        ]
+    },
+    "2": {
+        "Nome": "Gustavo",
+        "Data de Nascimento": "06/09/2005",
+        "Sexo": "M",
+        "Sal\u00e1rio": 2350.0,
+        "E-mails": [
+            "gustavo@gmail.com",
+            "trizotti@gmail.com"
+        ],
+        "Telefones": [
+            "991",
+            "992"
+        ]
+    }
+}
